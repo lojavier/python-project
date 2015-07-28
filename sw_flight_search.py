@@ -14,10 +14,26 @@ from htmlentitydefs import name2codepoint
 # http://www.blog.pythonlibrary.org/2012/06/08/python-101-how-to-submit-a-web-form/
 # http://www.thetaranights.com/fill-online-form-using-python/
 # http://wwwsearch.sourceforge.net/mechanize/download.html
+global temp
+global nonstopFlag
+global pointsFlag
 global outboundTime
 global returnTime
-global nonstopFlag
+global flightNum
+global currentPrice
+global departTag
+global departTime
+global departTime24Hour
+global arriveTag
+global arriveTime
+global arriveTime24Hour
+global route
+global upcoming_trips
 
+def fare_reducer():
+	global upcoming_trips
+
+# def send_mail():
 # SMTP_SERVER = "smtp.gmail.com"
 # SMTP_PORT = 587
 # SMTP_USERNAME = "ljavier90@gmail.com"
@@ -44,27 +60,45 @@ global nonstopFlag
 # except smtplib.SMTPException:
 # 	print "Error: unable to send email"
 
+
 class MyHTMLParser(HTMLParser):
-    def handle_startendtag(self, tag, attrs):
-        for attr in attrs:
-        	if "title" in attr[0]:
+	def handle_starttag(self, tag, attrs):
+		global temp
+		global flightNum
+		global currentPrice
+		global departTag
+		global departTime
+		global departTime24Hour
+		global arriveTag
+		global arriveTime
+		global arriveTime24Hour
+		global route
+		for attr in attrs:
+			if "title" in attr[0]:
 				result = attr[1].split(' ', 8)
-				price = result[3]
+				flightNum = result[2]
+				currentPrice = result[3]
 				departTime = result[4]
 				temp = time.strptime(departTime, "%I:%M%p")
 				departTime24Hour = float(temp.tm_hour) + float(float(temp.tm_min) / 60)
+				departTag = result[5]
 				arriveTime = result[6]
 				temp = time.strptime(arriveTime, "%I:%M%p")
 				arriveTime24Hour = float(temp.tm_hour) + float(float(temp.tm_min) / 60)
+				arriveTag = result[7]
 				route = result[8]
 				temp = route.lower()
-				if(nonstopFlag and (temp.find("nonstop") == 0) ):
-					print price+"\t"+departTime+"\t"+result[5]+"\t"+arriveTime+"\t"+result[7]+"\t"+route+"\t"
-				elif(nonstopFlag and (temp.find("nonstop") != 0) ):
-					# Don't print
-					continue;
-				else:
-					print price+"\t"+departTime+"\t"+result[5]+"\t"+arriveTime+"\t"+result[7]+"\t"+route+"\t"
+	def handle_data(self, data):
+		global currentPrice
+		currentPrice = data.replace(',','')
+
+upcoming_trips = []
+upcoming_trips.append(['8ABYGC','Lorenzo','Javier','loj90@sbcglobal.net','SJC','PHX','10/02/2015','8:05PM','9:50PM','179','80.00','4291'])
+upcoming_trips.append(['8ABYGC','Lorenzo','Javier','loj90@sbcglobal.net','PHX','SJC','10/06/2015','5:40AM','7:35AM','2787','60.00','2989'])
+upcoming_trips.append(['HHGRHL','Lorenzo','Javier','loj90@sbcglobal.net','SJC','ONT','10/30/2015','8:20PM','9:30PM','2953','119.00','6798'])
+upcoming_trips.append(['HN9RRZ','Lorenzo','Javier','loj90@sbcglobal.net','LAX','SJC','11/02/2015','8:45AM','9:55AM','1147','63.00','3184'])
+upcoming_trips.append(['832STR','Lorenzo','Javier','loj90@sbcglobal.net','SJC','PHX','11/04/2015','6:35AM','9:20AM','539','60.00','2989'])
+upcoming_trips.append(['832STR','Lorenzo','Javier','loj90@sbcglobal.net','PHX','SJC','11/08/2015','8:40PM','9:35PM','1117','144.00','8459'])
 
 airport_list = []
 airport_list.append(['OAK','Oakland, CA - OAK'])
@@ -84,33 +118,62 @@ airport_list.append(['EWR','New York/Newark, NJ - EWR'])
 airport_list.append(['ROC','Rochester, NY - ROC'])
 airport_list.append(['SMF','Sacramento, CA - SMF'])
 
+#####################################################################
+## Set user input variables
+#####################################################################
+temp = ""
 originAirportCode = sys.argv[1]
 originAirportName = False
-destinationAirportCode = sys.argv[2]
-destinationAirportName = False
-outboundDate = sys.argv[3]
-outboundTime = sys.argv[4]
-returnDate = sys.argv[5]
-returnTime = sys.argv[6]
-nonstopFlag = False
-
-try:
-	if( str(sys.argv[7]).lower() == "nonstop" ):
-		nonstopFlag = True
-	print "\nSearching for all nonstop flights...\n"
-except:
-	print "\nSearching for all flights...\n"
-
 for x in range(0,len(airport_list)):
 	if originAirportCode in airport_list[x][0]:
 		originAirportName = airport_list[x][1]
 		break;
-
+destinationAirportCode = sys.argv[2]
+destinationAirportName = False
 for x in range(0,len(airport_list)):
 	if destinationAirportCode in airport_list[x][0]:
 		destinationAirportName = airport_list[x][1]
 		break;
+outboundDate = sys.argv[3]
+temp = datetime.datetime.strptime(outboundDate, "%m/%d/%Y")
+outboundDay = temp.strftime("%A")
+outboundTime = sys.argv[4]
+if( ("<" in outboundTime) or (">" in outboundTime) ):
+	if( "<" in outboundTime ):
+		print outboundTime
+	elif( ">" in outboundTime ):
+		print outboundTime
+returnDate = sys.argv[5]
+temp = datetime.datetime.strptime(returnDate, "%m/%d/%Y")
+returnDay = temp.strftime("%A")
+returnTime = sys.argv[6]
+nonstopFlag = False
+if( str(sys.argv[7]).lower() == "nonstop" ):
+	nonstopFlag = True
+pointsFlag = False
+if( str(sys.argv[8]).lower() == "points" ):
+	pointsFlag = True
 
+if(nonstopFlag and pointsFlag):
+	print "\nSearching for all NONSTOP flights (POINTS)...\n"
+elif(nonstopFlag and not pointsFlag):
+	print "\nSearching for all NONSTOP flights (DOLLARS)...\n"
+elif(not nonstopFlag and pointsFlag):
+	print "\nSearching for all flights (POINTS)...\n"
+elif(not nonstopFlag and not pointsFlag):
+	print "\nSearching for all flights (DOLLARS)...\n"
+
+currentPrice = "$0"
+departTag = "depart"
+departTime = "12:00AM"
+arriveTag = "arrive"
+arriveTime = "12:00AM"
+route = "all"
+flightNum = "0"
+
+#####################################################################
+## Initiate mechanize, set parameters in form, and submit form
+#####################################################################
 br = mechanize.Browser()
 br.set_handle_robots(False)
 response = br.open("https://www.southwest.com/flight/")
@@ -123,43 +186,67 @@ br.find_control(name="originAirport").value = [originAirportCode]
 br.find_control(name="destinationAirport").value = [destinationAirportCode]
 br.form["outboundDateString"] = outboundDate
 br.form["returnDateString"] = returnDate
-# br.form['twoWayTrip'] = ['1']
-# br.form['oneWay'] = ['1']
-# br.form['roundTrip'] = ['1']
-# br.form['fareType'] = ['POINTS']
-# br.find_control(name="fareType").value = ['POINTS']
+# br.find_control(id="roundTrip",name="twoWayTrip").value = ['true']
+if(pointsFlag == True):
+	br.find_control(name="fareType").value = ['POINTS']
+else:
+	br.find_control(name="fareType").value = ['DOLLARS']
 result = br.submit()
 content = result.read()
 with open("southwest_results.html", "w") as f:
     f.write(content)
 
-print ""
-
 southwest_results_file = open("southwest_results.html", "r")
 southwest_results_string = southwest_results_file.read()
 parser = MyHTMLParser()
 
-print originAirportName+" ---> "+destinationAirportName+" [ "+outboundDate+" ]"
+print originAirportName+" ---> "+destinationAirportName+" [ "+outboundDay+", "+outboundDate+" ]"
 for x in range(1,30):
 	inputPosBeg = southwest_results_string.find("<input id=\"Out"+str(x)+"C\"")
-	# if inputPosBeg == -1:
-	# 	break;
-	inputPosEnd = southwest_results_string.find("/>", inputPosBeg)
-	outboundFlightResult = southwest_results_string[(inputPosBeg):(inputPosEnd+2)]
-	parser.feed(outboundFlightResult)
+	if(inputPosBeg != -1):
+		inputPosEnd = southwest_results_string.find("/>", inputPosBeg)
+		outboundFlightResult = southwest_results_string[(inputPosBeg):(inputPosEnd+2)]
+		parser.feed(outboundFlightResult)
+
+		if(pointsFlag == True):
+			inputPosBeg2 = southwest_results_string.find("<label", inputPosBeg)
+			inputPosEnd2 = southwest_results_string.find("</label>", inputPosBeg2)
+			outboundFlightResult = southwest_results_string[(inputPosBeg2):(inputPosEnd2+8)]
+			parser.feed(outboundFlightResult)
+
+		if(nonstopFlag and (temp.find("nonstop") == 0) ):
+			print currentPrice+"\t"+departTime+"\t"+departTag+"\t"+arriveTime+"\t"+arriveTag+"\t(Flight # "+flightNum+")"+"\t"+route
+		elif(nonstopFlag and (temp.find("nonstop") != 0) ):
+			pass
+		else:
+			print currentPrice+"\t"+departTime+"\t"+departTag+"\t"+arriveTime+"\t"+arriveTag+"\t(Flight # "+flightNum+")"+"\t"+route
 
 print ""
 
-print destinationAirportName+" ---> "+originAirportName+" [ "+returnDate+" ]"
+print destinationAirportName+" ---> "+originAirportName+" [ "+returnDay+", "+returnDate+" ]"
 for x in range(1,30):
 	inputPosBeg = southwest_results_string.find("<input id=\"In"+str(x)+"C\"")
-	# if inputPosBeg == -1:
-	# 	break;
-	inputPosEnd = southwest_results_string.find("/>", inputPosBeg)
-	inboundFlightResult = southwest_results_string[(inputPosBeg):(inputPosEnd+2)]
-	parser.feed(inboundFlightResult)
+	if(inputPosBeg != -1):
+		inputPosEnd = southwest_results_string.find("/>", inputPosBeg)
+		inboundFlightResult = southwest_results_string[(inputPosBeg):(inputPosEnd+2)]
+		parser.feed(inboundFlightResult)
+		
+		if(pointsFlag == True):
+			inputPosBeg2 = southwest_results_string.find("<label", inputPosBeg)
+			inputPosEnd2 = southwest_results_string.find("</label>", inputPosBeg2)
+			inboundFlightResult = southwest_results_string[(inputPosBeg2):(inputPosEnd2+8)]
+			parser.feed(inboundFlightResult)
+
+		if(nonstopFlag and (temp.find("nonstop") == 0) ):
+			print currentPrice+"\t"+departTime+"\t"+departTag+"\t"+arriveTime+"\t"+arriveTag+"\t(Flight # "+flightNum+")"+"\t"+route
+		elif(nonstopFlag and (temp.find("nonstop") != 0) ):
+			pass
+		else:
+			print currentPrice+"\t"+departTime+"\t"+departTag+"\t"+arriveTime+"\t"+arriveTag+"\t(Flight # "+flightNum+")"+"\t"+route
 
 print ""
+
+# fare_reducer():
 '''
 "CAK":{
 	"code":"CAK",
