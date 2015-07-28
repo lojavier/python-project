@@ -18,42 +18,31 @@ global outboundTime
 global returnTime
 global nonstopFlag
 
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-SMTP_USERNAME = "ljavier90@gmail.com"
-SMTP_PASSWORD = "calilife4me"
-
-EMAIL_FROM = 'ljavier90@gmail.com'
-EMAIL_TO = ['loj90@sbcglobal.net']
-EMAIL_SUBJECT = "Demo Email : "
-
-DATE_FORMAT = "%d/%m/%Y"
-EMAIL_SPACE = ", "
-
-DATA='This is the content of the email.'
-
-# DATA = """From: From Person <loj90@sbcglobal.net>
-# To: To Person <loj90@sbcglobal.net>
-# Subject: SMTP e-mail test
-
-# This is a test e-mail message.
-# """
-
-try:
-	msg = MIMEText(DATA)
-	msg['Subject'] = EMAIL_SUBJECT + " %s" % (date.today().strftime(DATE_FORMAT))
-	msg['To'] = EMAIL_SPACE.join(EMAIL_TO)
-	msg['From'] = EMAIL_FROM
-	mail = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-	mail.starttls()
-	mail.login(SMTP_USERNAME, SMTP_PASSWORD)
-	mail.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
-	mail.quit()
-	# smtpObj = smtplib.SMTP('localhost')
-	# smtpObj.sendmail(sender, receivers, message)         
-	print "Successfully sent email"
-except smtplib.SMTPException:
-	print "Error: unable to send email"
+# SMTP_SERVER = "smtp.gmail.com"
+# SMTP_PORT = 587
+# SMTP_USERNAME = "ljavier90@gmail.com"
+# SMTP_PASSWORD = "calilife4me"
+# EMAIL_FROM = 'ljavier90@gmail.com'
+# EMAIL_TO = ['loj90@sbcglobal.net']
+# EMAIL_SUBJECT = "Demo Email : "
+# DATE_FORMAT = "%d/%m/%Y"
+# EMAIL_SPACE = ", "
+# DATA='This is the content of the email.'
+# try:
+# 	msg = MIMEText(DATA)
+# 	msg['Subject'] = EMAIL_SUBJECT + " %s" % (date.today().strftime(DATE_FORMAT))
+# 	msg['To'] = EMAIL_SPACE.join(EMAIL_TO)
+# 	msg['From'] = EMAIL_FROM
+# 	mail = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+# 	mail.starttls()
+# 	mail.login(SMTP_USERNAME, SMTP_PASSWORD)
+# 	mail.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
+# 	mail.quit()
+# 	# smtpObj = smtplib.SMTP('localhost')
+# 	# smtpObj.sendmail(sender, receivers, message)         
+# 	print "Successfully sent email"
+# except smtplib.SMTPException:
+# 	print "Error: unable to send email"
 
 class MyHTMLParser(HTMLParser):
     def handle_startendtag(self, tag, attrs):
@@ -82,6 +71,7 @@ airport_list.append(['OAK','Oakland, CA - OAK'])
 airport_list.append(['SJC','San Jose, CA - SJC'])
 airport_list.append(['SFO','San Francisco, CA - SFO'])
 airport_list.append(['ONT','Ontario/LA, CA - ONT'])
+airport_list.append(['SNA','Orange County/Santa Ana, CA - SN'])
 airport_list.append(['LAX','Los Angeles, CA - LAX'])
 airport_list.append(['LAS','Las Vegas, NV - LAS'])
 airport_list.append(['PHX','Phoenix, AZ - PHX'])
