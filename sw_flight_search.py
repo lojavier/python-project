@@ -117,6 +117,7 @@ airport_list.append(['LGA','New York (LaGuardia), NY - LGA'])
 airport_list.append(['EWR','New York/Newark, NJ - EWR'])
 airport_list.append(['ROC','Rochester, NY - ROC'])
 airport_list.append(['SMF','Sacramento, CA - SMF'])
+airport_list.append(['SEA','Seattle/Tacoma, WA - SEA'])
 
 #####################################################################
 ## Set user input variables
@@ -178,7 +179,7 @@ br = mechanize.Browser()
 br.set_handle_robots(False)
 response = br.open("https://www.southwest.com/flight/")
 content = response.read()
-with open("southwest_response.html", "w") as f:
+with open("/home/lorenzo/Python/python-project/southwest_response.html", "w") as f:
     f.write(content)
 br.select_form(name="buildItineraryForm")
 # br.select_form(nr=2)
@@ -187,16 +188,19 @@ br.find_control(name="destinationAirport").value = [destinationAirportCode]
 br.form["outboundDateString"] = outboundDate
 br.form["returnDateString"] = returnDate
 # br.find_control(id="roundTrip",name="twoWayTrip").value = ['true']
-if(pointsFlag == True):
-	br.find_control(name="fareType").value = ['POINTS']
-else:
-	br.find_control(name="fareType").value = ['DOLLARS']
+try:
+	if(pointsFlag == True):
+		br.find_control(name="fareType").value = ['POINTS']
+	else:
+		br.find_control(name="fareType").value = ['DOLLARS']
+except:
+	print "WARNING: Fare type selection is not accessible at the moment.\n"
 result = br.submit()
 content = result.read()
-with open("southwest_results.html", "w") as f:
+with open("/home/lorenzo/Python/python-project/southwest_results.html", "w") as f:
     f.write(content)
 
-southwest_results_file = open("southwest_results.html", "r")
+southwest_results_file = open("/home/lorenzo/Python/python-project/southwest_results.html", "r")
 southwest_results_string = southwest_results_file.read()
 parser = MyHTMLParser()
 
