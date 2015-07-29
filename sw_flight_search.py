@@ -36,9 +36,9 @@ def fare_reducer():
 # def send_mail():
 # SMTP_SERVER = "smtp.gmail.com"
 # SMTP_PORT = 587
-# SMTP_USERNAME = "ljavier90@gmail.com"
-# SMTP_PASSWORD = "calilife4me"
-# EMAIL_FROM = 'ljavier90@gmail.com'
+# SMTP_USERNAME = "swfarereducer@gmail.com"
+# SMTP_PASSWORD = "swfarereducer1"
+# EMAIL_FROM = 'swfarereducer@gmail.com'
 # EMAIL_TO = ['loj90@sbcglobal.net']
 # EMAIL_SUBJECT = "Demo Email : "
 # DATE_FORMAT = "%d/%m/%Y"
