@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+import os
 import re
 import sys
 import time
-import urllib
-import urllib2
+import MySQLdb
 import smtplib
 import datetime
 import mechanize
@@ -15,8 +15,6 @@ from htmlentitydefs import name2codepoint
 # http://www.thetaranights.com/fill-online-form-using-python/
 # http://wwwsearch.sourceforge.net/mechanize/download.html
 global temp
-global nonstopFlag
-global pointsFlag
 global outboundTime
 global returnTime
 global flightNum
@@ -40,7 +38,7 @@ global outboundFlightNum
 global paidDollarsPrice
 global paidPointsPrice
 
-def send_mail(notificationAddress,paidDollarsPrice,currentDollarsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum):
+def send_alert(notificationAddress,paidPrice,currentPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum):
 	SMTP_SERVER = "smtp.gmail.com"
 	SMTP_PORT = 587
 	SMTP_USERNAME = "swfarereducer@gmail.com"
@@ -51,7 +49,7 @@ def send_mail(notificationAddress,paidDollarsPrice,currentDollarsPrice,confirmat
 	EMAIL_TO = [notificationAddress]
 	EMAIL_SPACE = ", "
 	EMAIL_SUBJECT = "PRICE DROP ALERT!"
-	DATA = "(PRICE DROP ALERT!) testtesttest [$%s->%s] [CONF#:%s] [%s->%s] [%s] [FLIGHT#%s] https://www.southwest.com/flight/change-air-reservation.html" % (paidDollarsPrice,currentDollarsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
+	DATA = "[%s->%s] [CONF#:%s] [%s->%s] [%s] [FLIGHT#%s] https://www.southwest.com/flight/change-air-reservation.html" % (paidPrice,currentPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
 	try:
 		msg = MIMEText(DATA)
 		msg['Subject'] = EMAIL_SUBJECT
@@ -96,13 +94,19 @@ class MyHTMLParser(HTMLParser):
 		global currentPointsPrice
 		currentPointsPrice = data.replace(',','')
 
+# Round price up
 upcoming_trips = []
-upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','10/02/2015','8:05PM','9:50PM','179','80','4291'])
-upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','10/06/2015','5:40AM','7:35AM','2787','60','2989'])
-upcoming_trips.append(['HHGRHL','Lorenzo','Javier','9252007284@vtext.com','SJC','ONT','10/30/2015','8:20PM','9:30PM','2953','119','6798'])
-upcoming_trips.append(['HN9RRZ','Lorenzo','Javier','9252007284@vtext.com','LAX','SJC','11/02/2015','8:45AM','9:55AM','1147','63','3184'])
-upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','11/04/2015','6:35AM','9:20AM','539','60','2989'])
-upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','11/08/2015','8:40PM','9:35PM','1117','144','8459'])
+upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','10/02/2015','8:05PM','9:50PM','179','0','4291'])
+upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','10/06/2015','5:40AM','7:35AM','2787','0','2989'])
+upcoming_trips.append(['HHGRHL','Lorenzo','Javier','9252007284@vtext.com','SJC','ONT','10/30/2015','8:20PM','9:30PM','2953','0','6798'])
+upcoming_trips.append(['HN9RRZ','Lorenzo','Javier','9252007284@vtext.com','LAX','SJC','11/02/2015','8:45AM','9:55AM','1147','0','3184'])
+upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','11/04/2015','6:35AM','9:20AM','539','0','2989'])
+upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','11/08/2015','8:40PM','9:35PM','1117','0','8459'])
+upcoming_trips.append(['8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','ONT','SJC','09/03/2015','6:45PM','7:50PM','3243','60','0'])
+upcoming_trips.append(['8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','SJC','ONT','09/09/2015','8:20PM','9:30PM','2953','63','0'])
+upcoming_trips.append(['H9CRR8','Giovanni','Javier','9257856233@vtext.com','OAK','ONT','10/30/2015','8:40AM','9:55AM','2751','0','3803'])
+upcoming_trips.append(['H38RR6','Giovanni','Javier','9257856233@vtext.com','LAX','OAK','11/02/2015','9:15AM','10:30AM','2906','0','3184'])
+# upcoming_trips.append(['','','','','','','','','','','',''])
 
 airport_list = []
 airport_list.append(['OAK','Oakland, CA - OAK'])
@@ -139,7 +143,10 @@ flightNum = ""
 #####################################################################
 ## Initiate mechanize, set parameters in form, and submit form
 #####################################################################
-
+cwd = os.getcwd()
+resultsFile = cwd+"/southwest_results.html"
+responseFile = cwd+"/southwest_response.html"
+print ""
 for x in range(0,len(upcoming_trips)):
 	confirmationNum = upcoming_trips[x][0]
 	firstName = upcoming_trips[x][1]
@@ -166,35 +173,37 @@ for x in range(0,len(upcoming_trips)):
 	paidDollarsPrice = upcoming_trips[x][10]
 	paidPointsPrice = upcoming_trips[x][11]
 
-	br = mechanize.Browser()
-	br.set_handle_robots(False)
-	response = br.open("https://www.southwest.com/flight/")
-	content = response.read()
-	with open("southwest_response.html", "w") as f:
-	    f.write(content)
-	br.select_form(name="buildItineraryForm")
-	# br.select_form(nr=2)
-	br.find_control(name="originAirport").value = [originAirportCode]
-	br.find_control(name="destinationAirport").value = [destinationAirportCode]
-	br.form["outboundDateString"] = outboundDate
-	if(outboundDepartTime24Hour < 12):
-		br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['BEFORE_NOON']
-	elif(18 >= outboundDepartTime24Hour <= 12):
-		br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['NOON_TO_6PM']
-	elif(outboundDepartTime24Hour > 18):
-		br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['AFTER_6PM']
-	br.find_control(id="roundTrip",name="twoWayTrip").value = ['false']
-	try:
-		br.find_control(name="fareType").value = ['POINTS']
-	except:
-		print "WARNING: Fare type selection is not accessible at the moment.\n"
-	result = br.submit()
-	content = result.read()
-	with open("southwest_results.html", "w") as f:
-	    f.write(content)
+	# br = mechanize.Browser()
+	# br.set_handle_robots(False)
+	# response = br.open("https://www.southwest.com/flight/")
+	# content = response.read()
+	# with open(responseFile, "w") as f:
+	#     f.write(content)
+	# br.select_form(name="buildItineraryForm")
+	# # br.select_form(nr=2)
+	# br.find_control(name="originAirport").value = [originAirportCode]
+	# br.find_control(name="destinationAirport").value = [destinationAirportCode]
+	# br.form["outboundDateString"] = outboundDate
+	# if(outboundDepartTime24Hour < 12):
+	# 	br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['BEFORE_NOON']
+	# elif(18 >= outboundDepartTime24Hour <= 12):
+	# 	br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['NOON_TO_6PM']
+	# elif(outboundDepartTime24Hour > 18):
+	# 	br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['AFTER_6PM']
+	# br.find_control(id="roundTrip",name="twoWayTrip").value = ['false']
+	# try:
+	# 	br.find_control(name="fareType").value = ['POINTS']
+	# except:
+	# 	print "WARNING: Fare type selection is not accessible at the moment.\n"
+	# try:
+	# 	result = br.submit()
+	# except:
+	# 	print "ERROR: Could not submit information "
+	# 	continue
+	# southwest_results_string = result.read()
+	# with open(resultsFile, "w") as f:
+	#     f.write(southwest_results_string)
 
-	southwest_results_file = open("southwest_results.html", "r")
-	southwest_results_string = southwest_results_file.read()
 	parser = MyHTMLParser()
 
 	print originAirportName+" ---> "+destinationAirportName+" [ "+outboundDay+", "+outboundDate+" ]"
@@ -211,10 +220,12 @@ for x in range(0,len(upcoming_trips)):
 				outboundFlightResult = southwest_results_string[(inputPosBeg2):(inputPosEnd2+8)]
 				parser.feed(outboundFlightResult)
 
-				print currentDollarsPrice+" / "+currentPointsPrice+"\t"+departTime+"\t"+departTag+"\t"+arriveTime+"\t"+arriveTag+"\t(Flight # "+flightNum+")"+"\t"+route
+				print "%s (%s)\t%s\t%s\t%s\t%s\t(Flight # %s)\t%s" % (currentDollarsPrice,currentPointsPrice,departTime,departTag,arriveTime,arriveTag,flightNum,route)
 				
-				if( (float(currentDollarsPrice.replace('$','')) < float(paidDollarsPrice)) or (float(currentPointsPrice) < float(paidPointsPrice)) ):
-					send_mail(notificationAddress,paidDollarsPrice,currentDollarsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
+				if( float(currentDollarsPrice.replace('$','')) < float(paidDollarsPrice) ):
+					send_alert(notificationAddress,"$"+paidDollarsPrice,currentDollarsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
+				elif( float(currentPointsPrice) < float(paidPointsPrice) ):
+					send_alert(notificationAddress,paidPointsPrice,currentPointsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
 				break
 
 	print ""
