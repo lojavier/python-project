@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import os
 import re
 import sys
@@ -173,36 +173,36 @@ for x in range(0,len(upcoming_trips)):
 	paidDollarsPrice = upcoming_trips[x][10]
 	paidPointsPrice = upcoming_trips[x][11]
 
-	# br = mechanize.Browser()
-	# br.set_handle_robots(False)
-	# response = br.open("https://www.southwest.com/flight/")
-	# content = response.read()
-	# with open(responseFile, "w") as f:
-	#     f.write(content)
-	# br.select_form(name="buildItineraryForm")
-	# # br.select_form(nr=2)
-	# br.find_control(name="originAirport").value = [originAirportCode]
-	# br.find_control(name="destinationAirport").value = [destinationAirportCode]
-	# br.form["outboundDateString"] = outboundDate
-	# if(outboundDepartTime24Hour < 12):
-	# 	br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['BEFORE_NOON']
-	# elif(18 >= outboundDepartTime24Hour <= 12):
-	# 	br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['NOON_TO_6PM']
-	# elif(outboundDepartTime24Hour > 18):
-	# 	br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['AFTER_6PM']
-	# br.find_control(id="roundTrip",name="twoWayTrip").value = ['false']
-	# try:
-	# 	br.find_control(name="fareType").value = ['POINTS']
-	# except:
-	# 	print "WARNING: Fare type selection is not accessible at the moment.\n"
-	# try:
-	# 	result = br.submit()
-	# except:
-	# 	print "ERROR: Could not submit information "
-	# 	continue
-	# southwest_results_string = result.read()
-	# with open(resultsFile, "w") as f:
-	#     f.write(southwest_results_string)
+	br = mechanize.Browser()
+	br.set_handle_robots(False)
+	response = br.open("https://www.southwest.com/flight/")
+	content = response.read()
+	with open(responseFile, "w") as f:
+	    f.write(content)
+	br.select_form(name="buildItineraryForm")
+	# br.select_form(nr=2)
+	br.find_control(name="originAirport").value = [originAirportCode]
+	br.find_control(name="destinationAirport").value = [destinationAirportCode]
+	br.form["outboundDateString"] = outboundDate
+	if(outboundDepartTime24Hour < 12):
+		br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['BEFORE_NOON']
+	elif(18 >= outboundDepartTime24Hour <= 12):
+		br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['NOON_TO_6PM']
+	elif(outboundDepartTime24Hour > 18):
+		br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['AFTER_6PM']
+	br.find_control(id="roundTrip",name="twoWayTrip").value = ['false']
+	try:
+		br.find_control(name="fareType").value = ['POINTS']
+	except:
+		print "WARNING: Fare type selection is not accessible at the moment.\n"
+	try:
+		result = br.submit()
+	except:
+		print "ERROR: Could not submit information "
+		continue
+	southwest_results_string = result.read()
+	with open(resultsFile, "w") as f:
+	    f.write(southwest_results_string)
 
 	parser = MyHTMLParser()
 
@@ -220,15 +220,13 @@ for x in range(0,len(upcoming_trips)):
 				outboundFlightResult = southwest_results_string[(inputPosBeg2):(inputPosEnd2+8)]
 				parser.feed(outboundFlightResult)
 
-				print "%s (%s)\t%s\t%s\t%s\t%s\t(Flight # %s)\t%s" % (currentDollarsPrice,currentPointsPrice,departTime,departTag,arriveTime,arriveTag,flightNum,route)
+				print "%s (%s)\t%s\t%s\t%s\t%s\t(Flight # %s)\t%s\n" % (currentDollarsPrice,currentPointsPrice,departTime,departTag,arriveTime,arriveTag,flightNum,route)
 				
 				if( float(currentDollarsPrice.replace('$','')) < float(paidDollarsPrice) ):
 					send_alert(notificationAddress,"$"+paidDollarsPrice,currentDollarsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
 				elif( float(currentPointsPrice) < float(paidPointsPrice) ):
 					send_alert(notificationAddress,paidPointsPrice,currentPointsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
 				break
-
-	print ""
 
 '''
 Alltel
