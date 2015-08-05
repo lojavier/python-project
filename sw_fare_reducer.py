@@ -95,19 +95,19 @@ class MyHTMLParser(HTMLParser):
 		global currentPointsPrice
 		currentPointsPrice = data.replace(',','')
 
-# Round price up
-upcoming_trips = []
-upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','10/02/2015','8:05PM','9:50PM','179','0','4291'])
-upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','10/06/2015','5:40AM','7:35AM','2787','0','2989'])
-upcoming_trips.append(['HHGRHL','Lorenzo','Javier','9252007284@vtext.com','SJC','ONT','10/30/2015','8:20PM','9:30PM','2953','0','6798'])
-upcoming_trips.append(['HN9RRZ','Lorenzo','Javier','9252007284@vtext.com','LAX','SJC','11/02/2015','8:45AM','9:55AM','1147','0','3184'])
-upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','11/04/2015','6:35AM','9:20AM','539','0','2989'])
-upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','11/08/2015','8:40PM','9:35PM','1117','0','8459'])
-upcoming_trips.append(['8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','ONT','SJC','09/03/2015','6:45PM','7:50PM','3243','60','0'])
-upcoming_trips.append(['8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','SJC','ONT','09/09/2015','8:20PM','9:30PM','2953','63','0'])
-upcoming_trips.append(['H9CRR8','Giovanni','Javier','9257856233@vtext.com','OAK','ONT','10/30/2015','8:40AM','9:55AM','2751','0','3803'])
-upcoming_trips.append(['H38RR6','Giovanni','Javier','9257856233@vtext.com','LAX','OAK','11/02/2015','9:15AM','10:30AM','2906','0','3184'])
-# upcoming_trips.append(['','','','','','','','','','','',''])
+# # Round price up
+# upcoming_trips = []
+# upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','10/02/2015','8:05PM','9:50PM','179','0','4291'])
+# upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','10/06/2015','5:40AM','7:35AM','2787','0','2989'])
+# upcoming_trips.append(['HHGRHL','Lorenzo','Javier','9252007284@vtext.com','SJC','ONT','10/30/2015','8:20PM','9:30PM','2953','0','6798'])
+# upcoming_trips.append(['HN9RRZ','Lorenzo','Javier','9252007284@vtext.com','LAX','SJC','11/02/2015','8:45AM','9:55AM','1147','0','3184'])
+# upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','11/04/2015','6:35AM','9:20AM','539','0','2989'])
+# upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','11/08/2015','8:40PM','9:35PM','1117','0','8459'])
+# upcoming_trips.append(['8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','ONT','SJC','09/03/2015','6:45PM','7:50PM','3243','60','0'])
+# upcoming_trips.append(['8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','SJC','ONT','09/09/2015','8:20PM','9:30PM','2953','63','0'])
+# upcoming_trips.append(['H9CRR8','Giovanni','Javier','9257856233@vtext.com','OAK','ONT','10/30/2015','8:40AM','9:55AM','2751','0','3803'])
+# upcoming_trips.append(['H38RR6','Giovanni','Javier','9257856233@vtext.com','LAX','OAK','11/02/2015','9:15AM','10:30AM','2906','0','3184'])
+# # upcoming_trips.append(['','','','','','','','','','','',''])
 
 airport_list = []
 airport_list.append(['OAK','Oakland, CA - OAK'])
