@@ -167,6 +167,9 @@ class MyHTMLParser(HTMLParser):
 			elif "Flight" in data:
 				flightNumFlag = True
 				print "Data     :", data
+			elif "errors" in data:
+				errorFlag = True
+				break
 			else:
 				departureCityFlag = False
 				departureDateFlag = False
@@ -176,47 +179,9 @@ class MyHTMLParser(HTMLParser):
 				flightNumFlag = False
 				print "Data     :", data
 
-airport_list = []
-airport_list.append(['OAK','Oakland, CA - OAK'])
-airport_list.append(['SJC','San Jose, CA - SJC'])
-airport_list.append(['SFO','San Francisco, CA - SFO'])
-airport_list.append(['ONT','Ontario/LA, CA - ONT'])
-airport_list.append(['SNA','Orange County/Santa Ana, CA - SN'])
-airport_list.append(['LAX','Los Angeles, CA - LAX'])
-airport_list.append(['LAS','Las Vegas, NV - LAS'])
-airport_list.append(['PHX','Phoenix, AZ - PHX'])
-airport_list.append(['SAN','San Diego, CA - SAN'])
-airport_list.append(['ALB','Albany, NY - ALB'])
-airport_list.append(['BUF','Buffalo/Niagara, NY - BUF'])
-airport_list.append(['ISP','Long Island/Islip, NY - ISP'])
-airport_list.append(['LGA','New York (LaGuardia), NY - LGA'])
-airport_list.append(['EWR','New York/Newark, NJ - EWR'])
-airport_list.append(['ROC','Rochester, NY - ROC'])
-airport_list.append(['SMF','Sacramento, CA - SMF'])
-airport_list.append(['SEA','Seattle/Tacoma, WA - SEA'])
-
 #####################################################################
 ## Set user input variables
 #####################################################################
-temp = ""
-currentDollarsPrice = ""
-currentPointsPrice = ""
-departTag = ""
-departTime = ""
-arriveTag = ""
-arriveTime = ""
-route = ""
-flightNum1 = ""
-flightNum2 = ""
-
-#####################################################################
-## Initiate mechanize, set parameters in form, and submit form
-#####################################################################
-cwd = os.getcwd()
-resultsFile = cwd+"/southwest_conf_results.html"
-responseFile = cwd+"/southwest_conf_response.html"
-print ""
-
 departureDate1 = ""
 departureCity1 = ""
 departureTime1 = ""
@@ -227,6 +192,10 @@ arrivalCity1 = ""
 arrivalTime1 = ""
 arrivalCity2 = ""
 arrivalTime2 = ""
+flightNum1 = ""
+flightNum2 = ""
+currentDollarsPrice = ""
+currentPointsPrice = ""
 departureDateFlag = False
 departureCityFlag = False
 departureTimeFlag = False
@@ -236,6 +205,17 @@ flightNumFlag = False
 strongFlag = False
 tdFlag = False
 roundTripFlag = False
+errorFlag = False
+
+#####################################################################
+## Initiate mechanize, set parameters in form, and submit form
+#####################################################################
+cwd = os.getcwd()
+resultsFile = cwd+"/southwest_conf_results.html"
+responseFile = cwd+"/southwest_conf_response.html"
+print ""
+
+
 
 # db = MySQLdb.connect("localhost","root","swfarereducer","SWFAREREDUCERDB")
 # cursor = db.cursor()
@@ -362,7 +342,7 @@ content = response.read()
 with open(responseFile, "w") as f:
     f.write(content)
 br.select_form(predicate=lambda f: f.attrs.get('id', None) == 'reservationLookupCriteria')
-br.find_control(name="confirmationNumber").value = "8ABYGC" # "HN9RRZ"
+br.find_control(name="confirmationNumber").value = "7ABYGC" # "HN9RRZ"
 br.find_control(name="firstName").value = "LORENZO"
 br.find_control(name="lastName").value = "JAVIER"
 # try:
@@ -392,24 +372,8 @@ print "Departure Time: " + departureTime2
 print "Arrival Time  : " + arrivalTime2
 print "Flight #      : " + flightNum2
 
-# 	print originAirportName+" ---> "+destinationAirportName+" [ "+outboundDay+", "+outboundDate+" ]"
-# 	for x in range(1,30):
-# 		inputPosBeg = southwest_results_string.find("<input id=\"Out"+str(x)+"C\"")
-# 		if(inputPosBeg != -1):
-# 			inputPosEnd = southwest_results_string.find("/>", inputPosBeg)
-# 			outboundFlightResult = southwest_results_string[(inputPosBeg):(inputPosEnd+2)]
-# 			parser.feed(outboundFlightResult)
-
-# 			if( (flightNum == outboundFlightNum) ):
-# 				inputPosBeg2 = southwest_results_string.find("<label", inputPosBeg)
-# 				inputPosEnd2 = southwest_results_string.find("</label>", inputPosBeg2)
-# 				outboundFlightResult = southwest_results_string[(inputPosBeg2):(inputPosEnd2+8)]
-# 				parser.feed(outboundFlightResult)
-
-# 				print "%s (%s)\t%s\t%s\t%s\t%s\t(Flight # %s)\t%s\n" % (currentDollarsPrice,currentPointsPrice,departTime,departTag,arriveTime,arriveTag,flightNum,route)
-				
-# 				if( float(currentDollarsPrice.replace('$','')) < float(paidDollarsPrice) ):
-# 					send_alert(notificationAddress,"$"+paidDollarsPrice,currentDollarsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
-# 				elif( float(currentPointsPrice) < float(paidPointsPrice) ):
-# 					send_alert(notificationAddress,paidPointsPrice,currentPointsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
-# 				break
+# db = MySQLdb.connect("localhost","root","swfarereducer","SWFAREREDUCERDB")
+# cursor = db.cursor()
+# sql = "SELECT * FROM SWFAREREDUCERDB.UPCOMING_FLIGHTS"
+# try:
+# 	cursor.execute(sql)
