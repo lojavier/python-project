@@ -40,60 +40,141 @@ global paidDollarsPrice
 global paidPointsPrice
 
 class MyHTMLParser(HTMLParser):
-	# def handle_starttag(self, tag, attrs):
-	# 	global temp
-	# 	global flightNum
-	# 	global currentDollarsPrice
-	# 	global departTag
-	# 	global departTime
-	# 	global departTime24Hour
-	# 	global arriveTag
-	# 	global arriveTime
-	# 	global arriveTime24Hour
-	# 	global route
-
 	def handle_starttag(self, tag, attrs):
-		# print "Start tag:", tag
-		# for attr in attrs:
-		# 	print "     attr:", attr
+		global departureDateFlag
+		global departureCityFlag
+		global departureTimeFlag
+		global arrivalCityFlag
+		global arrivalTimeFlag
+		global strongFlag
+		global tdFlag
 		if "span" in tag:
 			for attr in attrs:
 				if "class" in attr[0] and "travelDateTime" in attr[1]:
+					departureDateFlag = True
 					print "     attr:", attr[1]
-				if "class" in attr[0] and "nowrap" in attr[1]:
+				if "class" in attr[0] and "nowrap" in attr[1] and "nextDayContainer" not in attr[1]:
+					departureTimeFlag = True
 					print "     attr:", attr[1]
 				if "class" in attr[0] and "nextDayContainer" in attr[1]:
+					arrivalTimeFlag = True
 					print "     attr:", attr[1]
-		if "strong" in tag:
+		elif "strong" in tag:
 			print "Start tag:", tag
-		if "td" in tag:
+			strongFlag = True
+		elif "td" in tag:
+			tdFlag = True
 			print "Start tag:", tag
 			for attr in attrs:
 				if "class" in attr[0] and "flightNumber" in attr[1]:
 					print "     attr:", attr[1]
-
+		else:
+			strongFlag = False
+			tdFlag = False
 	def handle_data(self, data):
-		temp = data.strip()
-		if temp:
-			print "Data     :", data
-		if "Arrive in" in data:
-			print "Data     :", data
-		if "Wanna Get Away" in data:
-			print "Data     :", data
-
-# # Round price up
-# upcoming_trips = []
-# upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','10/02/2015','8:05PM','9:50PM','179','0','4291'])
-# upcoming_trips.append(['8ABYGC','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','10/06/2015','5:40AM','7:35AM','2787','0','2989'])
-# upcoming_trips.append(['HHGRHL','Lorenzo','Javier','9252007284@vtext.com','SJC','ONT','10/30/2015','8:20PM','9:30PM','2953','0','6798'])
-# upcoming_trips.append(['HN9RRZ','Lorenzo','Javier','9252007284@vtext.com','LAX','SJC','11/02/2015','8:45AM','9:55AM','1147','0','3184'])
-# upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','11/04/2015','6:35AM','9:20AM','539','0','2989'])
-# upcoming_trips.append(['832STR','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','11/08/2015','8:40PM','9:35PM','1117','0','8459'])
-# upcoming_trips.append(['8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','ONT','SJC','09/03/2015','6:45PM','7:50PM','3243','60','0'])
-# upcoming_trips.append(['8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','SJC','ONT','09/09/2015','8:20PM','9:30PM','2953','63','0'])
-# upcoming_trips.append(['H9CRR8','Giovanni','Javier','9257856233@vtext.com','OAK','ONT','10/30/2015','8:40AM','9:55AM','2751','0','3803'])
-# upcoming_trips.append(['H38RR6','Giovanni','Javier','9257856233@vtext.com','LAX','OAK','11/02/2015','9:15AM','10:30AM','2906','0','3184'])
-# # upcoming_trips.append(['','','','','','','','','','','',''])
+		global roundTripFlag
+		global departureCity1
+		global departureDate1
+		global departureTime1
+		global departureCity2
+		global departureDate2
+		global departureTime2
+		global departureCityFlag
+		global departureDateFlag
+		global departureTimeFlag
+		global arrivalCity1
+		global arrivalTime1
+		global arrivalCity2
+		global arrivalTime2
+		global arrivalCityFlag
+		global arrivalTimeFlag
+		global flightNum1
+		global flightNum2
+		global flightNumFlag
+		global strongFlag
+		global tdFlag
+		data = data.strip()
+		if data:
+			# Departure of 1st flight (city)
+			if departureCityFlag and strongFlag and not roundTripFlag:
+				departureCity1 = data
+				departureCityFlag = False
+				print "Data     :", data
+			# Departure of 1st flight (date)
+			elif departureDateFlag and tdFlag and not roundTripFlag:
+				departureDate1 = data
+				departureDateFlag = False
+				roundTripFlag = True
+				print "Data     :", data
+			# Departure of 1st flight (time)
+			elif departureTimeFlag and strongFlag and not roundTripFlag:
+				departureTime1 = data
+				departureTimeFlag = False
+				print "Data     :", data
+			# Arrival of 1st flight (city)
+			elif arrivalCityFlag and strongFlag and not roundTripFlag:
+				arrivalCity1 = data
+				arrivalCityFlag = False
+				print "Data     :", data
+			# Arrival of 1st flight (time)
+			elif arrivalTimeFlag and strongFlag and not roundTripFlag:
+				arrivalTime1 = data
+				arrivalTimeFlag = False
+				print "Data     :", data
+			# Flight number of 1st flight
+			elif flightNumFlag and strongFlag and not roundTripFlag:
+				flightNum1 = data.strip('#')
+				flightNumFlag = False
+				print "Data     :", data
+			# Departure of 2nd flight (city)
+			elif departureCityFlag and strongFlag and roundTripFlag:
+				departureCity2 = data
+				departureCityFlag = False
+				print "Data     :", data
+			# Departure of 2nd flight (date)
+			elif departureDateFlag and tdFlag and roundTripFlag:
+				departureDate2 = data
+				departureDateFlag = False
+				print "Data     :", data
+			# Departure of 2nd flight (date)
+			elif departureTimeFlag and strongFlag and roundTripFlag:
+				departureTime2 = data
+				departureTimeFlag = False
+				print "Data     :", data
+			# Arrival of 2nd flight (city)
+			elif arrivalCityFlag and strongFlag and roundTripFlag:
+				arrivalCity2 = data
+				arrivalCityFlag = False
+				print "Data     :", data
+			# Arrival of 2nd flight (time)
+			elif arrivalTimeFlag and strongFlag and roundTripFlag:
+				arrivalTime2 = data
+				arrivalTimeFlag = False
+				print "Data     :", data
+			# Flight number of 2nd flight
+			elif flightNumFlag and strongFlag and roundTripFlag:
+				flightNum2 = data.strip('#')
+				flightNumFlag = False
+				print "Data     :", data
+			elif "Depart" in data:
+				departureCityFlag = True
+				print "Data     :", data
+			elif "Arrive in" in data:
+				arrivalCityFlag = True
+				print "Data     :", data
+			elif "Wanna Get Away" in data:
+				print "Data     :", data
+			elif "Flight" in data:
+				flightNumFlag = True
+				print "Data     :", data
+			else:
+				departureCityFlag = False
+				departureDateFlag = False
+				departureTimeFlag = False
+				arrivalCityFlag = False
+				arrivalTimeFlag = False
+				flightNumFlag = False
+				print "Data     :", data
 
 airport_list = []
 airport_list.append(['OAK','Oakland, CA - OAK'])
@@ -125,7 +206,8 @@ departTime = ""
 arriveTag = ""
 arriveTime = ""
 route = ""
-flightNum = ""
+flightNum1 = ""
+flightNum2 = ""
 
 #####################################################################
 ## Initiate mechanize, set parameters in form, and submit form
@@ -134,6 +216,26 @@ cwd = os.getcwd()
 resultsFile = cwd+"/southwest_conf_results.html"
 responseFile = cwd+"/southwest_conf_response.html"
 print ""
+
+departureDate1 = ""
+departureCity1 = ""
+departureTime1 = ""
+departureDate2 = ""
+departureCity2 = ""
+departureTime2 = ""
+arrivalCity1 = ""
+arrivalTime1 = ""
+arrivalCity2 = ""
+arrivalTime2 = ""
+departureDateFlag = False
+departureCityFlag = False
+departureTimeFlag = False
+arrivalCityFlag = False
+arrivalTimeFlag = False
+flightNumFlag = False
+strongFlag = False
+tdFlag = False
+roundTripFlag = False
 
 # db = MySQLdb.connect("localhost","root","swfarereducer","SWFAREREDUCERDB")
 # cursor = db.cursor()
@@ -260,7 +362,7 @@ content = response.read()
 with open(responseFile, "w") as f:
     f.write(content)
 br.select_form(predicate=lambda f: f.attrs.get('id', None) == 'reservationLookupCriteria')
-br.find_control(name="confirmationNumber").value = "8ABYGC"
+br.find_control(name="confirmationNumber").value = "8ABYGC" # "HN9RRZ"
 br.find_control(name="firstName").value = "LORENZO"
 br.find_control(name="lastName").value = "JAVIER"
 # try:
@@ -271,8 +373,24 @@ with open(resultsFile, "w") as f:
 # except:
 	# print "ERROR: Could not submit information "
 
+with open(resultsFile, "r") as f:
+	southwest_conf_results_string = f.read()
 parser = MyHTMLParser()
 parser.feed(southwest_conf_results_string)
+
+print "Departure City: " + departureCity1
+print "Arrival City  : " + arrivalCity1
+print "Departure Date: " + departureDate1
+print "Departure Time: " + departureTime1
+print "Arrival Time  : " + arrivalTime1
+print "Flight #      : " + flightNum1
+
+print "Departure City: " + departureCity2
+print "Arrival City  : " + arrivalCity2
+print "Departure Date: " + departureDate2
+print "Departure Time: " + departureTime2
+print "Arrival Time  : " + arrivalTime2
+print "Flight #      : " + flightNum2
 
 # 	print originAirportName+" ---> "+destinationAirportName+" [ "+outboundDay+", "+outboundDate+" ]"
 # 	for x in range(1,30):
