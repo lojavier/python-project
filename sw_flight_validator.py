@@ -194,13 +194,14 @@ class MyHTMLParser(HTMLParser):
 ## Set user input variables
 #####################################################################
 confirmationNum = sys.argv[1]
+print confirmationNum
 firstName = sys.argv[2]
 lastName = sys.argv[3]
 alertType = sys.argv[4]
 email = sys.argv[5]
 wirelessCarrier = sys.argv[6]
-paidType = sys.argv[7]
-paidPrice = sys.argv[8]
+fareLabel = sys.argv[7]
+farePrice = sys.argv[8]
 departureDate1 = ""
 departureCity1 = ""
 departureTime1 = ""
@@ -258,6 +259,10 @@ except:
 
 db.close()
 
+#####################################################################
+## If flight information does not exist in DB, retrieve flight 
+## information
+#####################################################################
 # if not existFlag:
 # br = mechanize.Browser()
 # br.set_handle_robots(False)
@@ -299,28 +304,26 @@ if departureCity1:
 	if "text" in alertType:
 		db = MySQLdb.connect("localhost","root","swfarereducer","SWFAREREDUCERDB")
 		cursor = db.cursor()
-		sql = "SELECT CARRIER_TEXT_EMAIL FROM SWFAREREDUCERDB.WIRELESS_CARRIERS WHERE CARRIER_NAME='%s'" % (wirelessCarrier)
+		sql = "SELECT CARRIER_TEXT_EMAIL FROM SWFAREREDUCERDB.WIRELESS_CARRIERS WHERE WIRELESS_CARRIER_ID=%s;" % (wirelessCarrier)
 		try:
 			cursor.execute(sql)
 			results = cursor.fetchone()
 			email = "%s%s" % (email,results[0])
-			print email
 		except:
-			print "ERROR: Unable to fetch data"
+			print "ERROR: Unable to fetch text email value"
 		db.close()
 
-	# db = MySQLdb.connect("localhost","root","swfarereducer","SWFAREREDUCERDB")
-	# cursor = db.cursor()
-	# sql = "INSERT INTO SWFAREREDUCER.UPCOMING_FLIGHTS(CONFIRMATION_NUM,FIRST_NAME,LAST_NAME,EMAIL,ORIGIN_AIRPORT_CODE,DESTINATION_AIRPORT_CODE) VALUES ('%s','%s','%s','%s','%s' )" % (confirmationNum,firstName,lastName,email, 2000)
-	# try:
-	# 	cursor.execute(sql)
-	# 	if cursor.rowcount > 0:
-	# 		existFlag = True
-	# 	else:
-	# 		existFlag = False
-	# except:
-	# 	print "ERROR: Unable to fetch data"
-	# db.close()
+	db = MySQLdb.connect("localhost","root","swfarereducer","SWFAREREDUCERDB")
+	cursor = db.cursor()
+	sql = "INSERT INTO SWFAREREDUCERDB.UPCOMING_FLIGHTS(CONFIRMATION_NUM,FIRST_NAME,LAST_NAME,EMAIL,DEPART_AIRPORT_CODE,ARRIVE_AIRPORT_CODE,DEPART_DATE,DEPART_TIME,ARRIVE_TIME,FLIGHT_NUM,FARE_LABEL,FARE_PRICE,FARE_TYPE) VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s',%s,'%s')" % (confirmationNum,firstName,lastName,email,departureCityCode1,arrivalCityCode1,departureDate1,departureTime1,arrivalTime1,flightNum1,fareLabel,farePrice,fareType1)
+	print sql
+	try:
+		cursor.execute(sql)
+		db.commit()
+	except:
+		db.rollback()
+		print "ERROR: Unable to fetch data"
+	db.close()
 
 if departureCity2:
 	print ""
@@ -338,5 +341,3 @@ if departureCity2:
 	print "%s;%s;%s;%s;%s;%s;%s" % (departureCity2,arrivalCity2,departureDate2,departureTime2,arrivalTime2,flightNum2,fareType2)
 # else:
 # 	print existFlag
-
-sql = "INSERT INTO SWFAREREDUCER.UPCOMING_FLIGHTS(CONFIRMATION_NUM,FIRST_NAME,LAST_NAME,EMAIL,ORIGIN_AIRPORT_CODE,DESTINATION_AIRPORT_CODE) VALUES ('%s','%s','%s','%s','%s' )" % (confirmationNum,firstName,lastName,email, 2000)
