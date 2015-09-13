@@ -185,8 +185,8 @@ try:
 		br.set_handle_robots(False)
 		response = br.open("https://www.southwest.com/flight/")
 		content = response.read()
-		with open(responseFile, "w") as f:
-		    f.write(content)
+		# with open(responseFile, "w") as f:
+		#     f.write(content)
 		br.select_form(name="buildItineraryForm")
 		# br.select_form(nr=2)
 		br.find_control(name="originAirport").value = [originAirportCode]
@@ -209,8 +209,8 @@ try:
 			print "ERROR: Could not submit information "
 			continue
 		southwest_results_string = result.read()
-		with open(resultsFile, "w") as f:
-		    f.write(southwest_results_string)
+		# with open(resultsFile, "w") as f:
+		#     f.write(southwest_results_string)
 
 		parser = MyHTMLParser()
 
