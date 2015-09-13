@@ -1,0 +1,66 @@
+http://www.raspipress.com/2012/09/tutorial-install-postfix-to-allow-outgoing-email-on-raspberry-pi/
+http://www.instructables.com/id/Ultimate-Pi-Based-Home-Server/
+
+#####################################################################
+## Step 1 – Disabling the desktop environment
+#####################################################################
+sudo raspi-config
+# Select 'boot_behaviour', then choose <No>
+
+#####################################################################
+## Step 2 – Allocating more memory to system processes
+#####################################################################
+# Select 'memory_split'
+# Select '240 240MiB for RAM, 16MiB for VideoCore', then choose <Ok>
+
+#####################################################################
+## Step 3 – Securing your Raspberry Pi
+#####################################################################
+# Select 'Change password for pi user'
+
+#####################################################################
+## Step 4 – Enabling SSH
+#####################################################################
+# Select 'SSH', then choose 'enable'
+
+#####################################################################
+## Step 5 – Make sure you’re up-to-date
+#####################################################################
+sudo apt-get update
+sudo apt-get upgrade
+
+#####################################################################
+## Step 6 – Change your hostname
+#####################################################################
+sudo nano /etc/hostname
+# Replace ‘raspberrypi’ with the domain from which your Raspberry Pi 
+# will run from.
+sudo reboot
+
+#####################################################################
+## Step 7 – Install Apache
+#####################################################################
+sudo apt-get install apache2 apache2-doc apache2-utils -y
+sudo apt-get install libapache2-mod-php5 php5 php-pear php5-xcache -y
+sudo apt-get install php5-mysql mysql-server mysql-client -y
+sudo apt-get install libmysqlclient-dev
+sudo reboot
+
+#####################################################################
+## Step 8 – Begin the PhpMyAdmin installation
+#####################################################################
+sudo apt-get install phpmyadmin -y
+# Select 'apache2', then choose <OK>.
+# When prompted, choose <Yes>. 
+
+#####################################################################
+## Step 9 – Configure Apache to work with PhpMyAdmin
+#####################################################################
+sudo nano /etc/apache2/apache2.conf
+# Add the following line at the bottom of the file:
+# 	Include /etc/phpmyadmin/apache.conf
+sudo /etc/init.d/apache2 restart
+
+#####################################################################
+## Step 10
+#####################################################################
