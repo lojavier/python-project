@@ -88,7 +88,7 @@ class MyHTMLParser(HTMLParser):
 				route = result[8]
 				break
 	def handle_data(self, data):
-		global currentPrice
+		global currentPointsPrice
 		currentPointsPrice = data.replace(',','')
 
 #####################################################################
@@ -110,7 +110,6 @@ flightNum = ""
 cwd = os.getcwd()
 resultsFile = cwd+"/southwest_results.html"
 responseFile = cwd+"/southwest_response.html"
-print ""
 
 db = MySQLdb.connect("127.0.0.1","root","swfarereducer","SWFAREREDUCERDB")
 cursor = db.cursor()
@@ -121,7 +120,6 @@ try:
 	results = cursor.fetchall()
 	for row in results:
 		confirmationNum = row[1]
-		print confirmationNum
 		firstName = row[2]
 		lastName = row[3]
 		notificationAddress = row[4]
@@ -147,14 +145,12 @@ try:
 		paidPrice = row[12]
 		fareType = row[13]
 
-		print outboundDepartTime24Hour
-
 		br = mechanize.Browser()
 		br.set_handle_robots(False)
 		response = br.open("https://www.southwest.com/flight/")
 		content = response.read()
-		with open(responseFile, "w") as f:
-		    f.write(content)
+		# with open(responseFile, "w") as f:
+		#     f.write(content)
 		br.select_form(name="buildItineraryForm")
 		# br.select_form(nr=2)
 		br.find_control(name="originAirport").value = [originAirportCode]
@@ -168,7 +164,7 @@ try:
 			br.find_control(id="outboundTimeOfDay",name="outboundTimeOfDay").value = ['AFTER_6PM']
 		br.find_control(id="roundTrip",name="twoWayTrip").value = ['false']
 		try:
-			br.find_control(name="fareType").value = [fareLabel]
+			br.find_control(name="fareType").value = ['POINTS']
 		except:
 			print "WARNING: Fare type selection is not accessible at the moment.\n"
 		try:
@@ -177,11 +173,11 @@ try:
 		except:
 			print "ERROR: Could not submit information "
 			continue
-		with open(resultsFile, "w") as f:
-		    f.write(southwest_results_string)
+		# with open(resultsFile, "w") as f:
+		#     f.write(southwest_results_string)
 
 		parser = MyHTMLParser()
-		print "TEST"
+
 		# print originAirportName+" ---> "+destinationAirportName+" [ "+outboundDay+", "+outboundDate+" ]"
 		for x in range(1,30):
 			inputPosBeg = southwest_results_string.find("<input id=\"Out"+str(x)+"C\"")
@@ -196,12 +192,12 @@ try:
 					outboundFlightResult = southwest_results_string[(inputPosBeg2):(inputPosEnd2+8)]
 					parser.feed(outboundFlightResult)
 
-					print "%s (%s)\t%s\t%s\t%s\t%s\t(Flight # %s)\t%s\tWanna Get Away\n" % (currentDollarsPrice,currentPointsPrice,departTime,departTag,arriveTime,arriveTag,flightNum,route)
-					
-					if( float(currentDollarsPrice.replace('$','')) < float(paidDollarsPrice) ):
-						send_alert(notificationAddress,"$"+paidDollarsPrice,currentDollarsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
-					elif( float(currentPointsPrice) < float(paidPointsPrice) ):
-						send_alert(notificationAddress,paidPointsPrice,currentPointsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
+					# print "%s (%s)\t%s\t%s\t%s\t%s\t(Flight # %s)\t%s\tWanna Get Away\n" % (currentDollarsPrice,currentPointsPrice,departTime,departTag,arriveTime,arriveTag,flightNum,route)
+
+					if( ("DOLLARS" in fareLabel) and (float(currentDollarsPrice.replace('$','')) < float(paidPrice)) ):
+						send_alert(notificationAddress,"$"+paidPrice,currentDollarsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
+					elif( ("POINTS" in fareLabel) and (float(currentPointsPrice) < float(paidPrice)) ):
+						send_alert(notificationAddress,paidPrice,currentPointsPrice,confirmationNum,originAirportCode,destinationAirportCode,outboundDate,outboundFlightNum)
 					break
 except:
 	print "ERROR: Unable to fetch data"
