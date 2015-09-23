@@ -54,7 +54,7 @@ INSERT INTO SWFAREREDUCERDB.UPCOMING_FLIGHTS (CONFIRMATION_NUM,FIRST_NAME,LAST_N
 ('8ABYGC','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','10/06/2015','5:40 AM','7:35 AM','2787','POINTS','2989','Wanna Get Away'),
 ('HHGRHL','Lorenzo','Javier','9252007284@vtext.com','SJC','ONT','10/30/2015','8:20 PM','9:30 PM','2953','POINTS','6798','Wanna Get Away'),
 ('HN9RRZ','Lorenzo','Javier','9252007284@vtext.com','LAX','SJC','11/02/2015','8:45 AM','9:55 AM','1147','POINTS','2924','Wanna Get Away'),
-('832STR','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','11/04/2015','6:35 AM','9:20 AM','539','POINTS','2989','Wanna Get Away'),
+('832STR','Lorenzo','Javier','9252007284@vtext.com','SJC','PHX','11/03/2015','8:10 PM','10:50 PM','2037','POINTS','3249','Wanna Get Away'),
 ('832STR','Lorenzo','Javier','9252007284@vtext.com','PHX','SJC','11/08/2015','8:40 PM','9:35 PM','1117','POINTS','8459','Wanna Get Away'),
 ('8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','ONT','SJC','09/03/2015','6:10 AM','7:20 AM','2964','DOLLARS','56','Wanna Get Away'),
 ('8J9T7V','Danielle','Gonzalez','9095698490@txt.att.net','SJC','ONT','09/09/2015','8:20 PM','9:30 PM','2953','DOLLARS','58','Wanna Get Away'),
